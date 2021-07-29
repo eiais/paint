@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+  <style>
+    body {
+      overflow: hidden;
+      background-color: #6a24b3;
+    }
+
+    .button {
+      border: none;
+      padding: 32px 32px;
+      display: inline-block;
+      cursor: pointer;
+    }
+  </style>
+  <body onresize="fixCanvas()">
+    <div style="display:none;">
+      <img id="source"
+         src="cockpit.png"
+         width="300" height="227">
+    </div>
+    <div id="buttons">
+      <div>
+      <button class="button" style="background-color:#20212c;" id="#20212c"></button>
+      <button class="button" style="background-color:#ffffff;" id="#ffffff"></button>
+      <button class="button" style="background-color:#760da2;" id="#760da1"></button>
+      <button class="button" style="background-color:#c880f7;" id="#c880f7"></button>
+      <button class="button" style="background-color:#e54580;" id="#e54580"></button>
+      <button class="button" style="background-color:#ec84ce;" id="#ec84ce"></button>
+      <button class="button" style="background-color:#edae4c;" id="#edae4c"></button>
+      <button class="button" style="background-color:#fff771;" id="#fff771"></button>
+      </div>
+      <div>
+      <button class="button" style="background-color:#87a945;" id="#87a945"></button>
+      <button class="button" style="background-color:#c4ff90;" id="#c4ff90"></button>
+      <button class="button" style="background-color:#407d7e;" id="#407d7e"></button>
+      <button class="button" style="background-color:#a4fcd5;" id="#a4fcd5"></button>
+      <button class="button" style="background-color:#4252a2;" id="#4252a2"></button>
+      <button class="button" style="background-color:#9ad0fa;" id="#9ad0fa"></button>
+      <button class="button" style="background-color:#522d7a;" id="#522d7a"></button>
+      <button class="button" style="background-color:#a67ef6;" id="#a67ef6"></button>
+      </div>
+    </div>
+    <canvas id="myCanvas">
+      Your browser does not support the canvas element.
+    </canvas>
+  </body>
+  <script>
+    function fixCanvas() {
+      canvas.width  = window.innerWidth - (window.innerWidth/10);
+      canvas.height = 37*(window.innerWidth - (window.innerWidth/10))/100;
+      drawBoard()
+    }
+
+    function drawBoard() {
+      const ctx = canvas.getContext("2d");
+      const {blockheight, blockwidth} = getBlockSize(canvas);
+      for(row=0; row < trows; row++) {
+        for(column=0; column < tcolumns; column++) {
+          if(row < 19 && column > 31)
+            continue;
+          ctx.fillStyle = state[row][column];
+          ctx.strokeStyle = "#000000";
+          ctx.fillRect(column*blockwidth, row*blockheight, (column+1)*blockwidth, (row+1)*blockheight);
+          ctx.strokeRect(column*blockwidth, row*blockheight, (column+1)*blockwidth, (row+1)*blockheight); 
+        }
+      }
+      ctx.drawImage(image, blockwidth*32, 0, blockwidth*29, blockheight*19);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(35*blockwidth, 8*blockheight, 9*blockwidth, 9*blockheight);
+      ctx.fillStyle = rcolor;
+      ctx.fillRect(  38*blockwidth, 11*blockheight, 6*blockwidth, 6*blockheight);
+      ctx.strokeRect(38*blockwidth, 11*blockheight, 6*blockwidth, 6*blockheight);
+      ctx.fillStyle = lcolor;
+      ctx.fillRect( 35*blockwidth, 8*blockheight, 6*blockwidth, 6*blockheight);
+      ctx.strokeRect(35*blockwidth, 8*blockheight, 6*blockwidth, 6*blockheight);
+    }
+
+    function getMousePos(event) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+      };
+    }
+
+    function getBlockSize(canvas) {
+      return {
+        blockheight: canvas.height/trows,
+        blockwidth:  canvas.width/tcolumns
+      };
+    }
+  </script>
+  <script>
+    const trows = 24;
+    const tcolumns = 60;
+    const canvas = document.getElementById("myCanvas");
+    const button = document.getElementById("buttons");
+    const image  = document.getElementById("source");
+    let state = Array.from(Array(trows), () => new Array(tcolumns).fill("#20212c"));
+    let lcolor = "#20212c";
+    let rcolor = "#ffffff";
+    fixCanvas();
+    image.addEventListener('load', (event) => { drawBoard();});
+    canvas.addEventListener('mousedown', (event) => {
+      const {x, y} = getMousePos(event);
+      const {blockheight, blockwidth} = getBlockSize(canvas);
+      const row= Math.floor(y/blockheight);
+      const column = Math.floor(x/blockwidth);
+      switch (event.which) {
+        case 1:
+          state[row][column] = lcolor;
+          break;
+        case 3:
+          state[row][column] = rcolor;
+          break;
+      }
+      drawBoard();}, false);
+    button.addEventListener('mousedown', (event) => {
+      if(event.target.nodeName === 'BUTTON') {
+        console.log(event.which);
+        switch (event.which) {
+          case 1:
+            lcolor = event.target.id;
+            break;
+          case 3:
+            rcolor = event.target.id;
+            break;
+        }
+        drawBoard();
+      }   
+    });
+    button.addEventListener('contextmenu', (event) => {event.preventDefault();});
+    canvas.addEventListener('contextmenu', (event) => {event.preventDefault();});
+  </script>
+</html>
