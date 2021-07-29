@@ -44,6 +44,10 @@
     <canvas id="myCanvas">
       Your browser does not support the canvas element.
     </canvas>
+    <div>
+    <button class="button" id="generate_Code">Generate code</button>
+    <div id="generated_Code"></div>
+    </div>
   </body>
   <script>
     function fixCanvas() {
@@ -57,7 +61,7 @@
       const {blockheight, blockwidth} = getBlockSize(canvas);
       for(row=0; row < trows; row++) {
         for(column=0; column < tcolumns; column++) {
-          if(row < 19 && column > 31)
+          if(row < trows - tfrontrows && column > 31)
             continue;
           ctx.fillStyle = state[row][column];
           ctx.strokeStyle = "#000000";
@@ -90,17 +94,47 @@
         blockwidth:  canvas.width/tcolumns
       };
     }
+
+    function generateCode(event) {
+      const data = new Uint8Array(1024);
+
+      // Copy the front part of the ship
+      for (let row = 0; row < tfrontrows; row++) {
+        for (let col = 0; col < tfrontcolumns; col++) {
+          data[35 + row * 32 + col] = state[trows - row - 1][trearcolumns + col];
+        }
+      }
+
+      // Copy the rear part
+      for (let row = 0; row < trows; row++) {
+        for (let col = 0; col < trearcolumns; col++) {
+          data[256 + row * trearcolumns + col] = state[trows - row - 1][col];
+        }
+      }
+
+      LZMA.compress(data, 6, function(result, error) {
+        const generatedCode = document.getElementById("generated_Code");
+        generatedCode.innerText = base64EncArr(result);
+      });
+    }
   </script>
   <script>
     const trows = 24;
+    const tfrontrows = 5;
     const tcolumns = 60;
+    const tfrontcolumns = 28;
+    const trearcolumns = tcolumns - tfrontcolumns;
+
     const canvas = document.getElementById("myCanvas");
     const button = document.getElementById("buttons");
     const image  = document.getElementById("source");
+    const generateButton = document.getElementById("generate_Code");
+
     let state = Array.from(Array(trows), () => new Array(tcolumns).fill("#20212c"));
     let lcolor = "#20212c";
     let rcolor = "#ffffff";
     fixCanvas();
+    generateButton.addEventListener('click', generateCode);
     image.addEventListener('load', (event) => { drawBoard();});
     canvas.addEventListener('mousedown', (event) => {
       const {x, y} = getMousePos(event);
@@ -133,4 +167,6 @@
     button.addEventListener('contextmenu', (event) => {event.preventDefault();});
     canvas.addEventListener('contextmenu', (event) => {event.preventDefault();});
   </script>
+  <script src="lzma-c.js"></script>
+  <script src="b64.js"></script>
 </html>
