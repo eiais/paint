@@ -94,7 +94,7 @@
     };
   }
 
-  function generateCode(event) {
+  async function generateCode(event) {
     const data = new Array(1024);
     for (let i = 0; i < 1024; i++) { data[i] = 0; }
 
@@ -113,16 +113,15 @@
     }
 
     const generatedCode = document.getElementById("generated_Code");
+    let lzma_compress = await lzma_compress_promise;
     let result = lzma_compress(data);
     generatedCode.innerText = base64EncArr(result);
   }
-  var lzma_compress;
+  var lzma_compress_promise;
 </script>
 <script type="module">
   import init, {compress} from "./lzma.js";
-  await init();
-  
-  lzma_compress = compress;
+  lzma_compress_promise = init().then(() => { return compress; });
 </script>
 <script>
   const trows = 24;
