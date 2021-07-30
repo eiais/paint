@@ -95,7 +95,8 @@
   }
 
   function generateCode(event) {
-    const data = new Uint8Array(1024);
+    const data = new Array(1024);
+    for (let i = 0; i < 1024; i++) { data[i] = 0; }
 
     // Copy the front part of the ship
     for (let row = 0; row < tfrontrows; row++) {
@@ -111,11 +112,17 @@
       }
     }
 
-    LZMA.compress(data, 6, function (result, error) {
-      const generatedCode = document.getElementById("generated_Code");
-      generatedCode.innerText = base64EncArr(result);
-    });
+    const generatedCode = document.getElementById("generated_Code");
+    let result = lzma_compress(data);
+    generatedCode.innerText = base64EncArr(result);
   }
+  var lzma_compress;
+</script>
+<script type="module">
+  import init, {compress} from "./lzma.js";
+  await init();
+  
+  lzma_compress = compress;
 </script>
 <script>
   const trows = 24;
@@ -169,7 +176,6 @@
   button.addEventListener('contextmenu', (event) => { event.preventDefault(); });
   canvas.addEventListener('contextmenu', (event) => { event.preventDefault(); });
 </script>
-<script src="lzma-c.js"></script>
 <script src="b64.js"></script>
 
 </html>

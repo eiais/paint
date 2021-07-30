@@ -1,0 +1,15 @@
+{
+  "name": "lzma",
+  "collaborators": [
+    "Tess Eisenberger <tess@teisen.be>"
+  ],
+  "version": "0.1.0",
+  "files": [
+    "lzma_bg.wasm",
+    "lzma.js",
+    "lzma.d.ts"
+  ],
+  "module": "lzma.js",
+  "types": "lzma.d.ts",
+  "sideEffects": false
+}

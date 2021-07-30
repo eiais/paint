@@ -1,0 +1,11 @@
+[package]
+name = "lzma"
+version = "0.1.0"
+authors = ["Tess Eisenberger <tess@teisen.be>"]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+lzma-rs = "*"
+wasm-bindgen = "*"
